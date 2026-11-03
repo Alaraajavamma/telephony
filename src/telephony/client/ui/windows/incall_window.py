@@ -186,6 +186,12 @@ class InCallWindow(Adw.Window):
             self.audio.update_hardware_state(False)
             return True
 
+        p_data = self.ofono.active_calls.get(self.active_path, {})
+        if p_data.get("state") in ("incoming", "waiting"):
+            self.fader.set_active(False)
+            self.audio.update_hardware_state(False)
+            return True
+
         is_ear = (not self.is_speaker)
         self.audio.update_hardware_state(is_ear)
         should_blank = is_ear and self.audio.is_near
