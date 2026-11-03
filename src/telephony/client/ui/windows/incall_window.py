@@ -187,7 +187,7 @@ class InCallWindow(Adw.Window):
             return True
 
         p_data = self.ofono.active_calls.get(self.active_path, {})
-        if p_data.get("state") in ("incoming", "waiting"):
+        if p_data.get("state") in ("incoming", "waiting", "disconnected"):
             self.fader.set_active(False)
             self.audio.update_hardware_state(False)
             return True
