@@ -520,6 +520,7 @@ class MmsManager(GObject.Object):
             body="",
             status="downloading",
             sender=sender,
+            msg_type="mms",
         )
         if row_id is None:
             logger.warning(f"[MMS] Could not store the downloading message {msg_path}")
@@ -660,7 +661,8 @@ class MmsManager(GObject.Object):
                         body=body_text,
                         status=status,
                         attachments=final_atts,
-                        sender=sender
+                        sender=sender,
+                        msg_type="mms",
                     )
 
             GLib.idle_add(self.emit, "message-received", sender, recipients, str(date), body_text, final_atts, sender_name)
