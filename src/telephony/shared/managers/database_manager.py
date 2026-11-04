@@ -687,6 +687,73 @@ class DatabaseManager(GObject.Object):
         except Exception as e:
             logger.error(f"[DB] Fail Stale Sending Error: {e}")
 
+    def complete_incoming_download(self, msg_id, body, attachments, status,
+                                   sender=None, remote_number=None):
+        """Fills in a message that was stored while it was still downloading.
+
+        The thread is rewritten too: a notification carries only the sender, so
+        a group MMS is announced against that one number and only the fetched
+        body says who else was on it. Leaving the old key would strand the
+        message in a one-to-one thread.
+        """
+        if self.refuse_write("complete_incoming_download"):
+            return False
+        try:
+            att_json = json.dumps(attachments) if attachments else "[]"
+            msg_type = "mms" if attachments else "sms"
+
+            norm_number = None
+            if remote_number:
+                if isinstance(remote_number, list):
+                    norm_number = ",".join(sorted(
+                        normalize_number(n, permissive=True) for n in remote_number))
+                else:
+                    norm_number = normalize_number(remote_number, permissive=True)
+
+            with self.lock:
+                c = self.conn_messages.cursor()
+                if norm_number:
+                    c.execute("UPDATE messages SET remote_number=? WHERE id=?",
+                              (norm_number, msg_id))
+                if sender:
+                    c.execute("""UPDATE messages
+                                 SET body=?, attachments=?, status=?, type=?, sender=?
+                                 WHERE id=?""",
+                              (body, att_json, status, msg_type, sender, msg_id))
+                else:
+                    c.execute("""UPDATE messages
+                                 SET body=?, attachments=?, status=?, type=?
+                                 WHERE id=?""",
+                              (body, att_json, status, msg_type, msg_id))
+                c.execute("SELECT remote_number FROM messages WHERE id=?", (msg_id,))
+                row = c.fetchone()
+                self.conn_messages.commit()
+
+            GLib.idle_add(self.emit, "messages-updated", row[0] if row else "", "content")
+            return True
+        except Exception as e:
+            logger.error(f"[DB] Complete Incoming Download Error: {e}")
+            return False
+
+    def fail_stale_downloading(self):
+        """A download interrupted by a restart can never be resumed: mmsd keeps
+        no fetch state across its own restart, so the row would otherwise sit at
+        downloading for good. Mirrors fail_stale_sending for the receive side."""
+        if self.refuse_write("fail_stale_downloading"):
+            return
+        try:
+            with self.lock:
+                c = self.conn_messages.cursor()
+                c.execute("UPDATE messages SET status='download_failed' WHERE status='downloading'")
+                changed = c.rowcount
+                self.conn_messages.commit()
+
+            if changed > 0:
+                logger.warning(f"[DB] Marked {changed} stale downloading messages as failed")
+                GLib.idle_add(self.emit, "messages-updated", "", "status")
+        except Exception as e:
+            logger.error(f"[DB] Fail Stale Downloading Error: {e}")
+
     def update_message_schedule(self, msg_id, status="sent", timestamp=None):
         if self.refuse_write("update_message_schedule"):
             return False
