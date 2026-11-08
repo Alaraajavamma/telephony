@@ -19,7 +19,7 @@ from telephony.shared.utils.phone_utils import get_own_number, normalize_number
 from telephony.shared.utils.thread_utils import run_in_background
 
 
-MMS_RESOLVE_TIMEOUT_SECONDS = 180
+MMS_RESOLVE_TIMEOUT_SECONDS = 900
 MMS_DOWNLOAD_TIMEOUT_SECONDS = 300
 MMS_DELIVERY_WATCH_LIMIT = 50
 UNCLAIMED_STATE_LIMIT = 20
