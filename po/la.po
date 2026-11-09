@@ -3579,3 +3579,11 @@ msgstr "Necessarii Andromedae ex systemate veniunt et hic tantum leguntur."
 msgid ""
 "{book} is not connected, so its contacts cannot be changed until it is back."
 msgstr "{book} non coniunctus est, itaque necessarii eius mutari non possunt donec redeat."
+
+#: src/telephony/client/ui/widgets/chat_bubbles_widget.py:296
+msgid "Receiving…"
+msgstr "Accipitur…"
+
+#: src/telephony/client/ui/widgets/chat_bubbles_widget.py:301
+msgid "Could not be received"
+msgstr "Accipi non potuit"
