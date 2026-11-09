@@ -122,7 +122,7 @@ class MmsManager(GObject.Object):
 
                 self.mmsd_watch_id = Gio.bus_watch_name_on_connection(
                     self.bus, "org.ofono.mms", Gio.BusNameWatcherFlags.NONE,
-                    None, self.on_mmsd_vanished
+                    self.on_mmsd_appeared, self.on_mmsd_vanished
                 )
 
             self.subs.append(self.bus.signal_subscribe(
@@ -541,6 +541,15 @@ class MmsManager(GObject.Object):
 
         logger.warning(f"[MMS] Download failed for row {row_id}")
         self.db.update_message_status(row_id, "download_failed")
+
+    def on_mmsd_appeared(self, connection, name, owner):
+        """The signal subscriptions survive a restart but the proxies do not,
+        so without this an announced download can never be completed."""
+        logger.info("[MMS] mmsd appeared, reconnecting")
+        self.connected = False
+        self.proxy = None
+        self.manager_proxy = None
+        self.init_manager()
 
     def on_mmsd_vanished(self, connection, name):
         """A fetch is only ever reported through mmsd, so when mmsd goes the
