@@ -3576,3 +3576,7 @@ msgstr "प्राप्त करत आहे…"
 #: src/telephony/client/ui/widgets/chat_bubbles_widget.py:301
 msgid "Could not be received"
 msgstr "प्राप्त करता आले नाही"
+
+#: src/telephony/daemon/telephony_core.py:770
+msgid "{sender}: {message}"
+msgstr "{sender}: {message}"
