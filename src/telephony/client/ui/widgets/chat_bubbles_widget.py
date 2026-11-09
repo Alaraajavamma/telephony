@@ -290,6 +290,18 @@ class ChatBubbleFactory:
             if not sender_name and add_contact_cb and sender_num and check_unknown:
                 show_add_contact = True
                 add_contact_num = sender_num
+
+            if item.status == "downloading":
+                target_w["bubble"].remove_css_class("chat-bubble-failed")
+                target_w["lbl_msg"].set_text(_("Receiving…"))
+                target_w["lbl_msg"].set_visible(True)
+            elif item.status == "download_failed":
+                target_w["bubble"].add_css_class("chat-bubble-failed")
+                if not item.body:
+                    target_w["lbl_msg"].set_text(_("Could not be received"))
+                    target_w["lbl_msg"].set_visible(True)
+            else:
+                target_w["bubble"].remove_css_class("chat-bubble-failed")
         else:
             target_w["lbl_sender"].set_visible(False)
 
@@ -316,11 +328,12 @@ class ChatBubbleFactory:
             elif item.status == "delivered":
                 target_w["bubble"].remove_css_class("chat-bubble-scheduled")
                 target_w["bubble"].add_css_class("chat-bubble-out")
-                target_w["lbl_time"].set_text(
-                    _("{time} · Delivered").format(time=item.display_time))
+                target_w["lbl_time"].set_text(f"\u2713\u2713 {item.display_time}")
             else:
                 target_w["bubble"].remove_css_class("chat-bubble-scheduled")
                 target_w["bubble"].add_css_class("chat-bubble-out")
+                if item.status in ("sent", "read"):
+                    target_w["lbl_time"].set_text(f"\u2713 {item.display_time}")
 
         target_w["menu_ctx"] = {
             "item": item,
