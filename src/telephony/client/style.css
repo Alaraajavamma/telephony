@@ -78,8 +78,8 @@ entry.dial-number-entry text {
 .accent { color: @accent_color; font-weight: bold; }
 .pill { border-radius: 12px; }
 
-/* Chat bubbles styling: Defines incoming (gray, rounded top-left), outgoing (blue, rounded top-right), and scheduled (yellow) message bubbles. */
-.chat-bubble-in { background: #deddda; color: black; border-radius: 15px 15px 15px 0px; padding: 6px 10px; }
+/* Chat bubbles styling: Defines incoming (rounded top-left), outgoing (blue, rounded top-right), and scheduled (yellow) message bubbles. The incoming tint is mixed from the theme foreground so it darkens with the dark theme instead of staying near white. */
+.chat-bubble-in { background: alpha(@window_fg_color, 0.12); color: @window_fg_color; border-radius: 15px 15px 15px 0px; padding: 6px 10px; }
 .chat-bubble-out { background: @accent_bg_color; color: @accent_fg_color; border-radius: 15px 15px 0px 15px; padding: 6px 10px; }
 .chat-bubble-scheduled { background: #f5c211; color: black; border-radius: 15px 15px 0px 15px; padding: 6px 10px; }
 /* Failure is marked by outline rather than fill: a solid red collides with the red accent colour, and shape still reads when the two hues do not. */
@@ -87,8 +87,8 @@ entry.dial-number-entry text {
 .chat-bubble-failed-meta { color: @error_color; opacity: 1; }
 .chat-bubble-state { font-style: italic; opacity: 0.75; }
 
-/* Link colors inside chat bubbles: The bubble backgrounds are fixed colors, so the theme link color (light blue in dark mode) would be unreadable on them. */
-.chat-bubble-in link { color: #1a5fb4; }
+/* Link colors inside chat bubbles: The outgoing and scheduled backgrounds are fixed colors, so the theme link color (light blue in dark mode) would be unreadable on them. */
+.chat-bubble-in link { color: @accent_color; }
 .chat-bubble-out link { color: @accent_fg_color; text-decoration: underline; }
 .chat-bubble-scheduled link { color: #1a5fb4; }
 .chat-bubble-failed link { color: @accent_color; text-decoration: underline; }
