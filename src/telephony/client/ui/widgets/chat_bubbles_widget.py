@@ -82,7 +82,13 @@ class ChatBubbleFactory:
 
         lbl_time = Gtk.Label(css_classes=["chat-time"], xalign=1)
 
+        icon_fail = Gtk.Image.new_from_icon_name("dialog-warning-symbolic")
+        icon_fail.set_pixel_size(12)
+        icon_fail.add_css_class("chat-bubble-failed-meta")
+        icon_fail.set_visible(False)
+
         meta_box.append(lbl_sender)
+        meta_box.append(icon_fail)
         meta_box.append(lbl_time)
         bubble.append(meta_box)
 
@@ -103,7 +109,7 @@ class ChatBubbleFactory:
         widgets = {
             "root": row, "bubble": bubble, "media_box": media_box,
             "lbl_msg": lbl_msg, "lbl_time": lbl_time, "lbl_sender": lbl_sender,
-            "btn_menu": btn_menu, "menu_ctx": None
+            "icon_fail": icon_fail, "btn_menu": btn_menu, "menu_ctx": None
         }
         group = Gio.SimpleActionGroup()
         for key in ("copy", "copy-number", "add-contact", "reschedule", "forward", "unread", "delete"):
@@ -220,6 +226,8 @@ class ChatBubbleFactory:
         w["stack"].set_visible_child_name(item.direction if item.direction == "incoming" else "outgoing")
 
         target_w["lbl_msg"].remove_css_class("chat-bubble-state")
+        target_w["icon_fail"].set_visible(False)
+        target_w["lbl_time"].remove_css_class("chat-bubble-failed-meta")
         if item.body:
             if not item.cached_markup:
                 item.cached_markup = ChatBubbleFactory.linkify(item.body)
@@ -299,6 +307,8 @@ class ChatBubbleFactory:
                 target_w["lbl_msg"].set_visible(True)
             elif item.status == "download_failed":
                 target_w["bubble"].add_css_class("chat-bubble-failed")
+                target_w["icon_fail"].set_visible(True)
+                target_w["lbl_time"].add_css_class("chat-bubble-failed-meta")
                 if not item.body:
                     target_w["lbl_msg"].set_text(_("Could not be received"))
                     target_w["lbl_msg"].add_css_class("chat-bubble-state")
@@ -323,6 +333,8 @@ class ChatBubbleFactory:
                 target_w["bubble"].remove_css_class("chat-bubble-scheduled")
                 target_w["bubble"].add_css_class("chat-bubble-out")
                 target_w["bubble"].add_css_class("chat-bubble-failed")
+                target_w["icon_fail"].set_visible(True)
+                target_w["lbl_time"].add_css_class("chat-bubble-failed-meta")
                 target_w["lbl_time"].set_text(_("Failed to send"))
             elif item.status == "sending":
                 target_w["bubble"].remove_css_class("chat-bubble-scheduled")
