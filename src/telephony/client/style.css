@@ -83,6 +83,7 @@ entry.dial-number-entry text {
 .chat-bubble-out { background: @accent_bg_color; color: @accent_fg_color; border-radius: 15px 15px 0px 15px; padding: 6px 10px; }
 .chat-bubble-scheduled { background: #f5c211; color: black; border-radius: 15px 15px 0px 15px; padding: 6px 10px; }
 .chat-bubble-failed { background: #c01c28; color: white; }
+.chat-bubble-state { font-style: italic; opacity: 0.75; }
 
 /* Link colors inside chat bubbles: The bubble backgrounds are fixed colors, so the theme link color (light blue in dark mode) would be unreadable on them. */
 .chat-bubble-in link { color: #1a5fb4; }

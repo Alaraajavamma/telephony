@@ -219,6 +219,7 @@ class ChatBubbleFactory:
         target_w = w["incoming"] if item.direction == "incoming" else w["outgoing"]
         w["stack"].set_visible_child_name(item.direction if item.direction == "incoming" else "outgoing")
 
+        target_w["lbl_msg"].remove_css_class("chat-bubble-state")
         if item.body:
             if not item.cached_markup:
                 item.cached_markup = ChatBubbleFactory.linkify(item.body)
@@ -294,11 +295,13 @@ class ChatBubbleFactory:
             if item.status == "downloading":
                 target_w["bubble"].remove_css_class("chat-bubble-failed")
                 target_w["lbl_msg"].set_text(_("Receiving…"))
+                target_w["lbl_msg"].add_css_class("chat-bubble-state")
                 target_w["lbl_msg"].set_visible(True)
             elif item.status == "download_failed":
                 target_w["bubble"].add_css_class("chat-bubble-failed")
                 if not item.body:
                     target_w["lbl_msg"].set_text(_("Could not be received"))
+                    target_w["lbl_msg"].add_css_class("chat-bubble-state")
                     target_w["lbl_msg"].set_visible(True)
             else:
                 target_w["bubble"].remove_css_class("chat-bubble-failed")
