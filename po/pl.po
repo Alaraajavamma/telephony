@@ -3607,3 +3607,7 @@ msgstr "Odbieranie…"
 #: src/telephony/client/ui/widgets/chat_bubbles_widget.py:301
 msgid "Could not be received"
 msgstr "Nie udało się odebrać"
+
+#: src/telephony/daemon/telephony_core.py:770
+msgid "{sender}: {message}"
+msgstr "{sender}: {message}"

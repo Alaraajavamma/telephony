@@ -3613,3 +3613,7 @@ msgstr "Po merret…"
 #: src/telephony/client/ui/widgets/chat_bubbles_widget.py:301
 msgid "Could not be received"
 msgstr "Nuk mund të merrej"
+
+#: src/telephony/daemon/telephony_core.py:770
+msgid "{sender}: {message}"
+msgstr "{sender}: {message}"

@@ -3580,3 +3580,7 @@ msgstr "पावल जा रहल बा…"
 #: src/telephony/client/ui/widgets/chat_bubbles_widget.py:301
 msgid "Could not be received"
 msgstr "नइखे मिल सकल"
+
+#: src/telephony/daemon/telephony_core.py:770
+msgid "{sender}: {message}"
+msgstr "{sender}: {message}"

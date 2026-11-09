@@ -3584,3 +3584,7 @@ msgstr "Na-anata…"
 #: src/telephony/client/ui/widgets/chat_bubbles_widget.py:301
 msgid "Could not be received"
 msgstr "Enweghị ike inata ya"
+
+#: src/telephony/daemon/telephony_core.py:770
+msgid "{sender}: {message}"
+msgstr "{sender}: {message}"
