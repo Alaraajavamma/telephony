@@ -566,6 +566,21 @@ class DatabaseManager(GObject.Object):
             logger.error(f"[DB] Get Conversation Ids Error: {e}")
             return []
 
+    def thread_participants(self, parts):
+        """An incoming group message lists everyone but the receiver, an
+        outgoing one is addressed to everyone, so without this the same
+        conversation gets two keys and shows up as two threads."""
+        if len(parts) < 2:
+            return parts
+
+        own = self.gsettings_mgr.get_setting("own_number") if self.gsettings_mgr else ""
+        if not own:
+            return parts
+
+        norm_own = normalize_number(own, permissive=True)
+        kept = [p for p in parts if p != norm_own]
+        return kept if kept else parts
+
     def add_message(self, remote_number, direction, body, status="unread", attachments=[], sender=None, scheduled_timestamp=None, msg_type=None):
         if not remote_number or not direction:
             logger.warning("[DB] Cannot add message: missing remote_number or direction.")
@@ -573,14 +588,18 @@ class DatabaseManager(GObject.Object):
         if self.refuse_write("add_message"):
             return None
         try:
-            norm_number = ""
             if isinstance(remote_number, list):
-                cleaned = [normalize_number(n, permissive=True) for n in remote_number]
-                norm_number = ",".join(sorted(cleaned))
+                parts = [normalize_number(n, permissive=True) for n in remote_number]
             elif "," in str(remote_number):
-                norm_number = remote_number
+                parts = [normalize_number(n, permissive=True)
+                         for n in str(remote_number).split(",") if n.strip()]
             else:
+                parts = None
+
+            if parts is None:
                 norm_number = normalize_number(remote_number, permissive=True)
+            else:
+                norm_number = ",".join(sorted(self.thread_participants(parts)))
 
             att_json = json.dumps(attachments) if attachments else "[]"
             if not msg_type:
