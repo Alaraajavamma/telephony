@@ -20,6 +20,7 @@ from telephony.shared.utils.thread_utils import run_in_background
 
 
 MMS_RESOLVE_TIMEOUT_SECONDS = 180
+MMS_DOWNLOAD_TIMEOUT_SECONDS = 300
 MMS_DELIVERY_WATCH_LIMIT = 50
 UNCLAIMED_STATE_LIMIT = 20
 SEEN_SIGNATURE_LIMIT = 50
@@ -99,6 +100,7 @@ class MmsManager(GObject.Object):
         self.inflight_mms_recipients = {}
         self.unclaimed_mms_states = {}
         self.delivery_watch = {}
+        self.mmsd_watch_id = 0
         self.mms_send_lock = threading.Lock()
 
         if not mimetypes.inited:
@@ -117,6 +119,11 @@ class MmsManager(GObject.Object):
                     None, None, Gio.DBusSignalFlags.NONE,
                     self.on_message_added_raw, None
                 ))
+
+                self.mmsd_watch_id = Gio.bus_watch_name_on_connection(
+                    self.bus, "org.ofono.mms", Gio.BusNameWatcherFlags.NONE,
+                    None, self.on_mmsd_vanished
+                )
 
             self.subs.append(self.bus.signal_subscribe(
                 "org.ofono.mms", "org.ofono.mms.Message", "PropertyChanged",
@@ -523,6 +530,8 @@ class MmsManager(GObject.Object):
             return
 
         self.downloading_paths[msg_path] = row_id
+        GLib.timeout_add_seconds(MMS_DOWNLOAD_TIMEOUT_SECONDS,
+                                 self.timeout_incoming_download, msg_path)
         logger.info(f"[MMS] Downloading from {sender}, row {row_id}")
 
     def fail_incoming_download(self, msg_path):
@@ -532,6 +541,23 @@ class MmsManager(GObject.Object):
 
         logger.warning(f"[MMS] Download failed for row {row_id}")
         self.db.update_message_status(row_id, "download_failed")
+
+    def on_mmsd_vanished(self, connection, name):
+        """A fetch is only ever reported through mmsd, so when mmsd goes the
+        reports go with it and the rows sit on downloading for good."""
+        if not self.downloading_paths:
+            return
+
+        logger.warning(f"[MMS] mmsd vanished with {len(self.downloading_paths)} download(s) in flight")
+        for msg_path in list(self.downloading_paths):
+            self.fail_incoming_download(msg_path)
+
+    def timeout_incoming_download(self, msg_path):
+        """Covers a fetch that stalls while mmsd stays on the bus."""
+        if msg_path in self.downloading_paths:
+            logger.warning(f"[MMS] Download timed out for {msg_path}")
+            self.fail_incoming_download(msg_path)
+        return False
 
     def on_message_send_error(self, conn, sender, path, iface, signal, params, user_data):
         logger.warning(f"[MMS] MessageSendError from daemon: {params.unpack() if params else None}")
