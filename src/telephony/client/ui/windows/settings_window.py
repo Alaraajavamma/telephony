@@ -934,11 +934,6 @@ class SettingsWindow(Adw.Bin):
         self.persist_sources()
 
     def source_row_subtitle(self, item):
-        if item["is_system_default"]:
-            return _("System Default (Always Enabled)")
-        if item.get("name") == "Andromeda Contacts":
-            return _("Synced from Andromeda")
-
         status_labels = {
             "connected": _("Connected"),
             "connecting": _("Connecting..."),
@@ -949,6 +944,10 @@ class SettingsWindow(Adw.Bin):
         bits = []
         if item.get("account"):
             bits.append(item["account"])
+        if item["is_system_default"]:
+            bits.append(_("System Default (Always Enabled)"))
+        elif item.get("name") == "Andromeda Contacts":
+            bits.append(_("Synced from Andromeda"))
         status_label = status_labels.get(item.get("status"))
         if status_label:
             bits.append(status_label)
