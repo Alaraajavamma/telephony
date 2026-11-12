@@ -935,9 +935,6 @@ class SettingsWindow(Adw.Bin):
 
     def source_row_subtitle(self, item):
         status_labels = {
-            "connected": _("Connected"),
-            "connecting": _("Connecting..."),
-            "disconnected": _("Not connected"),
             "awaiting-credentials": _("Login required"),
             "ssl-failed": _("Connection failed (SSL)"),
         }
