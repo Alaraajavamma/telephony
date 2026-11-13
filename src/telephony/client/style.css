@@ -86,6 +86,8 @@ entry.dial-number-entry text {
 .chat-bubble-failed { background: transparent; color: @theme_fg_color; box-shadow: inset 0 0 0 2px @error_color; }
 .chat-bubble-failed-meta { color: @error_color; opacity: 1; }
 .chat-bubble-state { font-style: italic; opacity: 0.75; }
+/* The ticks keep the bubble's own foreground colour, which the theme already guarantees against whatever accent the user picked, and they skip the dimming the timestamp beside them carries. Both rules name the timestamp class as well, because it is written further down and would win on equal specificity. The delivered pair overlaps so it reads as one mark; the weight comes from the heavy check character, since the font has no bolder form of the light one. */
+.chat-time.chat-bubble-ticks { opacity: 1; font-size: 0.9em; letter-spacing: -7px; padding-right: 7px; }
 
 /* Link colors inside chat bubbles: The outgoing and scheduled backgrounds are fixed colors, so the theme link color (light blue in dark mode) would be unreadable on them. */
 .chat-bubble-in link { color: @accent_color; }
